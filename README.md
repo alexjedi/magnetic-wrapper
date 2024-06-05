@@ -1,36 +1,215 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Magnetic Wrapper
+
+## Overview
+
+The **Magnetic Wrapper** project provides a reusable React component and a Framer code override that adds a magnetic hover effect to your elements. This document will guide you through using the Magnetic Wrapper in your code repository and within the Framer website editor.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Before you start, make sure you have the following tools installed:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Node.js
+- npm or yarn
+- Framer account (for Framer usage)
+- framer-motion (for code usage)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Usage in a Code Repository
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+#### MagneticWrapper Component
 
-## Learn More
+1. Copy the `MagneticWrapper` component code:
 
-To learn more about Next.js, take a look at the following resources:
+   ```jsx
+   'use client'
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   import { useState, useEffect, useRef, ReactNode } from 'react'
+   import { motion, useMotionValue, useSpring } from 'framer-motion'
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+   const SPRING_CONFIG = { damping: 30, stiffness: 150, mass: 0.2 }
+   const MAX_DISTANCE = 0.3
+   const MAX_SCALE = 1.1
 
-## Deploy on Vercel
+   interface MagneticWrapperProps {
+     children: ReactNode;
+   }
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   const MagneticWrapper: React.FC<MagneticWrapperProps> = ({ children }) => {
+     const [isHovered, setIsHovered] = useState(false)
+     const x = useMotionValue(0)
+     const y = useMotionValue(0)
+     const scale = useMotionValue(1)
+     const ref = useRef < HTMLDivElement > null
+     const springX = useSpring(x, SPRING_CONFIG)
+     const springY = useSpring(y, SPRING_CONFIG)
+     const springScale = useSpring(scale, { damping: 20, stiffness: 300 })
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+     useEffect(() => {
+       const calculateDistance = (e: MouseEvent) => {
+         if (ref.current) {
+           const rect = ref.current.getBoundingClientRect()
+           const centerX = rect.left + rect.width / 2
+           const centerY = rect.top + rect.height / 2
+           const distanceX = (e.clientX - centerX) * MAX_DISTANCE
+           const distanceY = (e.clientY - centerY) * MAX_DISTANCE
+
+           if (isHovered) {
+             x.set(distanceX)
+             y.set(distanceY)
+             scale.set(MAX_SCALE)
+           } else {
+             x.set(0)
+             y.set(0)
+             scale.set(1)
+           }
+         }
+       }
+
+       const handleMouseMove = (e: MouseEvent) => {
+         requestAnimationFrame(() => calculateDistance(e))
+       }
+
+       document.addEventListener('mousemove', handleMouseMove)
+       return () => {
+         document.removeEventListener('mousemove', handleMouseMove)
+       }
+     }, [isHovered, x, y, scale])
+
+     return (
+       <motion.div
+         ref={ref}
+         onMouseEnter={() => setIsHovered(true)}
+         onMouseLeave={() => setIsHovered(false)}
+         style={{
+           position: 'relative',
+           x: springX,
+           y: springY,
+           scale: springScale,
+         }}
+       >
+         {children}
+       </motion.div>
+     )
+   }
+
+   export default MagneticWrapper
+   ```
+
+2. Use Magic Wapper in your app:
+
+   ```jsx
+   import React from 'react'
+   import MagneticWrapper from './MagneticWrapper'
+
+   const CustomLink = ({ href, children }) => {
+     return (
+       <MagneticWrapper>
+         <a
+           href={href}
+           target="_blank"
+           className="p-4 rounded-full flex items-center justify-center bg-background text-accent-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+         >
+           {children}
+         </a>
+       </MagneticWrapper>
+     )
+   }
+
+   export default CustomLink
+   ```
+
+### Usage in Framer Website Editor
+
+1. Copy the `MagneticWrapper` code override:
+
+   ```jsx
+   import { useState, useEffect, useRef, ComponentType } from 'react'
+   import { motion, useMotionValue, useSpring } from 'framer-motion'
+
+   const SPRING_CONFIG = { damping: 30, stiffness: 150, mass: 0.2 }
+   const MAX_DISTANCE = 0.3
+   const MAX_SCALE = 1.1
+
+   export const MagneticWrapper = (Component): ComponentType => {
+     return (props) => {
+       const [isHovered, setIsHovered] = useState(false)
+       const x = useMotionValue(0)
+       const y = useMotionValue(0)
+       const scale = useMotionValue(1)
+       const ref = useRef < HTMLDivElement > null
+       const springX = useSpring(x, SPRING_CONFIG)
+       const springY = useSpring(y, SPRING_CONFIG)
+       const springScale = useSpring(scale, { damping: 20, stiffness: 300 })
+
+       useEffect(() => {
+         const calculateDistance = (e: MouseEvent) => {
+           if (ref.current) {
+             const rect = ref.current.getBoundingClientRect()
+             const centerX = rect.left + rect.width / 2
+             const centerY = rect.top + rect.height / 2
+             const distanceX = (e.clientX - centerX) * MAX_DISTANCE
+             const distanceY = (e.clientY - centerY) * MAX_DISTANCE
+
+             if (isHovered) {
+               x.set(distanceX)
+               y.set(distanceY)
+               scale.set(MAX_SCALE)
+             } else {
+               x.set(0)
+               y.set(0)
+               scale.set(1)
+             }
+           }
+         }
+
+         const handleMouseMove = (e: MouseEvent) => {
+           requestAnimationFrame(() => calculateDistance(e))
+         }
+
+         document.addEventListener('mousemove', handleMouseMove)
+         return () => {
+           document.removeEventListener('mousemove', handleMouseMove)
+         }
+       }, [isHovered, x, y, scale])
+
+       return (
+         <motion.div
+           ref={ref}
+           onMouseEnter={() => setIsHovered(true)}
+           onMouseLeave={() => setIsHovered(false)}
+           style={{
+             position: 'relative',
+             x: springX,
+             y: springY,
+             scale: springScale,
+           }}
+         >
+           <Component {...props} />
+         </motion.div>
+       )
+     }
+   }
+   ```
+
+2. In your Framer project, create a new code override snippet [right bottom part of the right sidebar -> Code Override -> New File] and paste the copied code.
+
+3. Apply the `MagneticWrapper` override to any component or element you want to have the magnetic effect. Don't forget to choose in the panel both: File Name and Override name!
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request with any changes.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Contact
+
+Feel free to reach out on [Twitter](https://twitter.com/pxl_alexjedi), [LinkedIn](https://www.linkedin.com/in/alex-shelvey/), or [Dribbble](https://dribbble.com/pxlhead).
+
+Don't forget to star the repo if you found it useful!
+
+---
+
+Happy coding!
