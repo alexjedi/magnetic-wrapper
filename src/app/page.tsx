@@ -9,6 +9,8 @@ import {
   Grip,
   Linkedin,
   Star,
+  TestTube,
+  TestTubeDiagonal,
   Twitter,
   X,
 } from 'lucide-react'
@@ -175,6 +177,9 @@ export default function Home() {
           <span className="text-xl font-medium ml-2">Alex Shevliakov</span>
         </CustomLink>
         <div className="flex space-x-2 items-center">
+          <CustomLink href="https://magnetic-wrapper.vercel.app/performance">
+            <TestTubeDiagonal size={24} strokeWidth={2} className="text-muted-foreground" />
+          </CustomLink>
           <CustomLink href="https://github.com/alexjedi/magnetic-wrapper">
             <Star size={24} strokeWidth={2} className="text-muted-foreground" />
           </CustomLink>
