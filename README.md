@@ -137,7 +137,7 @@ Before you start, make sure you have the following tools installed:
        const x = useMotionValue(0)
        const y = useMotionValue(0)
        const scale = useMotionValue(1)
-       const ref = useRef < HTMLDivElement > null
+       const ref = useRef <HTMLDivElement>(null)
        const springX = useSpring(x, SPRING_CONFIG)
        const springY = useSpring(y, SPRING_CONFIG)
        const springScale = useSpring(scale, { damping: 20, stiffness: 300 })
@@ -195,6 +195,25 @@ Before you start, make sure you have the following tools installed:
 2. In your Framer project, create a new code override snippet [right bottom part of the right sidebar -> Code Override -> New File] and paste the copied code.
 
 3. Apply the `MagneticWrapper` override to any component or element you want to have the magnetic effect. Don't forget to choose in the panel both: File Name and Override name!
+
+## Troubleshoting
+
+1. Components not responding to hover:
+
+- Ensure that the component is properly wrapped with the MagneticWrapper. If the component is not wrapped correctly, it won't respond to hover events.
+- Verify that the correct file name and override name are selected in the Framer panel.
+
+2. Component alignment issues:
+
+- If the component appears misaligned, try wrapping it in an overflow: visible frame. This can help with alignment issues by allowing the component to expand beyond its container's bounds.
+- If the frame is moved to the left, wrap the component in another frame that is aligned to the center. This ensures that both the component and its container are properly centered.
+
+3. Problems when converting an image into a component:
+
+- If you encounter issues when converting an image into a component, try wrapping the image component in a frame first. Then, apply the MagneticWrapper override to the frame instead of the image component directly.
+- This method ensures that the image component remains stable while the magnetic effect is applied to its containing frame.
+
+Thank you, @schemetastic, for finding the errors and ways to fix them!
 
 ## Contributing
 
